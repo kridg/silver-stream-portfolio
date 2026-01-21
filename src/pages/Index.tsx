@@ -98,7 +98,7 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section - Intro Only */}
-      <section className="relative min-h-screen flex items-center px-8 lg:px-16">
+      <section id="home" className="relative min-h-screen flex items-center px-8 lg:px-16">
         <div className="w-full max-w-7xl mx-auto">
           <HeroSection />
         </div>
@@ -106,6 +106,7 @@ const Index = () => {
 
       {/* Projects Section - Stacked beside, then horizontal scroll */}
       <section 
+        id="projects"
         className="relative"
         style={{ height: `${250}vh` }}
       >
@@ -163,6 +164,7 @@ const Index = () => {
 
       {/* Skills Horizontal Scroll */}
       <section 
+        id="skills"
         className="relative"
         style={{ height: `${100}vh` }}
       >

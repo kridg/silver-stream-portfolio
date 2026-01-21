@@ -10,14 +10,14 @@ const HeroSection = () => {
   ];
 
   return (
-    <section className="min-h-screen w-screen flex-shrink-0 flex items-center px-8 lg:px-16 relative overflow-hidden">
+    <div className="flex items-center justify-start w-full relative overflow-hidden">
       {/* Ambient background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-silver-200/40 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-gradient-to-tl from-silver-300/30 to-transparent rounded-full blur-3xl" />
       </div>
 
-      <div className="flex items-center justify-start w-full max-w-7xl mx-auto relative z-10">
+      <div className="flex items-center justify-start w-full max-w-4xl relative z-10">
         {/* Introduction */}
         <div className="max-w-3xl">
           <motion.div
@@ -111,24 +111,7 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs text-soft-gray-light uppercase tracking-widest">Scroll</span>
-        <motion.div
-          animate={{ x: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-8 h-5 rounded-full border border-silver-300 flex items-center justify-start px-1.5"
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-silver-400" />
-        </motion.div>
-      </motion.div>
-    </section>
+    </div>
   );
 };
 

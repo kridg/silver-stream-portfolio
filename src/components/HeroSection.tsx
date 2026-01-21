@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Github, Linkedin, Mail, ArrowRight } from "lucide-react";
 import MagneticButton from "./MagneticButton";
-import StackedProjectCards from "./StackedProjectCards";
 
 const HeroSection = () => {
   const socialLinks = [
@@ -18,9 +17,9 @@ const HeroSection = () => {
         <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] bg-gradient-to-tl from-silver-300/30 to-transparent rounded-full blur-3xl" />
       </div>
 
-      <div className="flex items-center justify-between w-full max-w-[1800px] mx-auto gap-12 lg:gap-24 relative z-10">
-        {/* Left: Introduction */}
-        <div className="flex-1 max-w-xl">
+      <div className="flex items-center justify-start w-full max-w-7xl mx-auto relative z-10">
+        {/* Introduction */}
+        <div className="max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -56,7 +55,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5 }}
-              className="text-lg md:text-xl text-soft-gray leading-relaxed max-w-md"
+              className="text-lg md:text-xl text-soft-gray leading-relaxed max-w-xl"
             >
               Full Stack Developer crafting elegant digital experiences 
               with modern web technologies.
@@ -110,11 +109,6 @@ const HeroSection = () => {
               ))}
             </motion.div>
           </motion.div>
-        </div>
-
-        {/* Right: Stacked Project Cards */}
-        <div className="flex-1 flex justify-center lg:justify-end">
-          <StackedProjectCards />
         </div>
       </div>
 

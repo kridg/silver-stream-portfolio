@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
@@ -105,12 +105,15 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -236,6 +239,22 @@
   .horizontal-scroll::-webkit-scrollbar-thumb {
     background: hsl(var(--silver-300));
     border-radius: 3px;
+  }
+
+  /* Smooth transitions for all elements */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent layout shift */
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Better text rendering */
+  h1, h2, h3, h4, h5, h6, p {
+    text-rendering: optimizeLegibility;
   }
 
   /* Magnetic hover effect base */

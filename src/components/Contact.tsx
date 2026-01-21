@@ -38,10 +38,10 @@ const Contact = () => {
                 <div>
                   <p className="text-sm text-soft-gray">Email</p>
                   <a 
-                    href="mailto:hello@kridipghale.dev" 
+                    href="mailto:ghalekridip67@gmail.com" 
                     className="text-charcoal font-medium hover:text-primary transition-colors"
                   >
-                    hello@kridipghale.dev
+                    ghalekridip67@gmail.com
                   </a>
                 </div>
               </div>
@@ -93,7 +93,7 @@ const Contact = () => {
                 I'd love to hear from you.
               </p>
               <motion.a
-                href="mailto:hello@kridipghale.dev"
+                href="mailto:ghalekridip67@gmail.com"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:opacity-90 transition-all duration-200"

@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
-import { Github, Linkedin, Mail, Twitter, ArrowUpRight, Sparkles } from "lucide-react";
+import { Github, Linkedin, Mail, MessageCircle, ArrowUpRight, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import MagneticButton from "./MagneticButton";
 
@@ -18,18 +18,18 @@ const socialLinks = [
     username: "in/kridipghale",
     color: "from-blue-500 to-blue-700"
   },
-  { 
-    icon: Twitter, 
-    href: "https://twitter.com", 
-    label: "Twitter",
-    username: "@kridipghale",
-    color: "from-sky-400 to-sky-600"
+  {
+    icon: MessageCircle,
+    href: "https://wa.me/1234567890",
+    label: "WhatsApp",
+    username: "+1 (234) 567-8900",
+    color: "from-green-400 to-green-600"
   },
   { 
     icon: Mail, 
-    href: "mailto:hello@kridipghale.dev", 
+    href: "mailto:ghalekridip67@gmail.com",
     label: "Email",
-    username: "hello@kridipghale.dev",
+    username: "ghalekridip67@gmail.com",
     color: "from-rose-400 to-rose-600"
   },
 ];
@@ -125,7 +125,7 @@ const CreativeContact = () => {
               </p>
               
               <MagneticButton 
-                href="mailto:hello@kridipghale.dev"
+                href="mailto:ghalekridip67@gmail.com"
                 strength={0.3}
               >
                 <motion.span 
@@ -141,60 +141,96 @@ const CreativeContact = () => {
             </motion.div>
           </div>
 
-          {/* Social Links Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Creative Social Links */}
+          <div className="flex flex-wrap justify-center items-center gap-8 mt-12">
             {socialLinks.map((link, index) => (
               <motion.a
                 key={link.label}
                 href={link.href}
                 target={link.label !== "Email" ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-                className="group"
+                transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
+                whileHover={{
+                  scale: 1.1,
+                  rotate: [0, -5, 5, 0],
+                  transition: { duration: 0.3 }
+                }}
+                className="group relative"
               >
+                {/* Floating background orb */}
                 <motion.div
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="card-premium p-6 h-full relative overflow-hidden"
+                  className={`absolute -inset-4 rounded-full blur-xl ${link.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 180, 360]
+                  }}
+                  transition={{
+                    duration: 8 + index * 2,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+
+                {/* Main icon container */}
+                <motion.div
+                  className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-silver-50 to-silver-100 border border-silver-200 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  whileHover={{
+                    background: `linear-gradient(135deg, ${link.color.includes('blue') ? '#dbeafe, #bfdbfe' : link.color.includes('green') ? '#dcfce7, #bbf7d0' : '#fef3c7, #fde68a'})`
+                  }}
                 >
-                  {/* Hover gradient background */}
+                  {/* Animated background pattern */}
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: hoveredCard === index ? 0.1 : 0 }}
-                    className={`absolute inset-0 bg-gradient-to-br ${link.color}`}
+                    className="absolute inset-0 opacity-0 group-hover:opacity-10"
+                    style={{
+                      backgroundImage: `radial-gradient(circle at 25% 25%, currentColor 1px, transparent 1px)`,
+                      backgroundSize: '8px 8px'
+                    }}
+                    animate={{
+                      backgroundPosition: ['0px 0px', '8px 8px']
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
                   />
-                  
-                  <div className="relative z-10">
-                    <motion.div
-                      whileHover={{ rotate: 10, scale: 1.1 }}
-                      className="w-12 h-12 rounded-xl bg-silver-100 border border-silver-200 flex items-center justify-center mb-4 group-hover:shadow-card transition-shadow"
-                    >
-                      <link.icon className="w-6 h-6 text-charcoal" />
-                    </motion.div>
-                    
-                    <h4 className="font-semibold text-charcoal mb-1 group-hover:text-primary transition-colors">
-                      {link.label}
-                    </h4>
-                    <p className="text-sm text-soft-gray truncate">
-                      {link.username}
-                    </p>
-                    
-                    <motion.div
-                      initial={{ x: -10, opacity: 0 }}
-                      animate={{ 
-                        x: hoveredCard === index ? 0 : -10, 
-                        opacity: hoveredCard === index ? 1 : 0 
-                      }}
-                      className="absolute top-4 right-4"
-                    >
-                      <ArrowUpRight className="w-5 h-5 text-soft-gray" />
-                    </motion.div>
-                  </div>
+
+                  <motion.div
+                    whileHover={{ rotate: 360, scale: 1.2 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative z-10"
+                  >
+                    <link.icon className="w-7 h-7 text-charcoal group-hover:text-white transition-colors duration-300" />
+                  </motion.div>
+
+                  {/* Sparkle effect */}
+                  <motion.div
+                    className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100"
+                    animate={{
+                      scale: [0, 1, 0],
+                      opacity: [0, 1, 0]
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: index * 0.2
+                    }}
+                  />
+                </motion.div>
+
+                {/* Label */}
+                <motion.div
+                  className="text-center mt-3"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                >
+                  <p className="text-sm font-medium text-charcoal group-hover:text-primary transition-colors">
+                    {link.label}
+                  </p>
                 </motion.div>
               </motion.a>
             ))}

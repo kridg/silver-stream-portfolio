@@ -8,62 +8,104 @@ const CursorFollower = () => {
   const glowRef = useRef<HTMLDivElement>(null);
   const trailRef = useRef<HTMLDivElement>(null);
   
-  // Current position
-  const currentX = useRef(0);
-  const currentY = useRef(0);
-  
-  // Secondary position for trail effect
+  // Current positions
+  const cursorX = useRef(0);
+  const cursorY = useRef(0);
+  const glowX = useRef(0);
+  const glowY = useRef(0);
   const trailX = useRef(0);
   const trailY = useRef(0);
   
-  // Target position (from mouse)
+  // Target positions
   const targetX = useRef(0);
   const targetY = useRef(0);
   
-  // Velocity for fluid motion
-  const velocityX = useRef(0);
-  const velocityY = useRef(0);
+  // Velocities for physics
+  const cursorVelX = useRef(0);
+  const cursorVelY = useRef(0);
+  const glowVelX = useRef(0);
+  const glowVelY = useRef(0);
   
-  // Smooth following with spring physics
-  const springStrength = 0.08;
-  const damping = 0.75;
-  const trailEase = 0.05;
+  // Previous positions for direction calculation
+  const prevX = useRef(0);
+  const prevY = useRef(0);
   
+  // Direction offset for fluidity effect
+  const directionOffset = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
+    let animationId: number;
+    
     const updateCursor = () => {
-      // Spring physics for main cursor
-      const dx = targetX.current - currentX.current;
-      const dy = targetY.current - currentY.current;
+      // Calculate direction
+      const dx = targetX.current - prevX.current;
+      const dy = targetY.current - prevY.current;
+      const distance = Math.sqrt(dx * dx + dy * dy);
       
-      velocityX.current += dx * springStrength;
-      velocityY.current += dy * springStrength;
+      // Normalize direction
+      if (distance > 0) {
+        directionOffset.current = {
+          x: (dx / distance) * 8, // Flow in opposite direction of movement
+          y: (dy / distance) * 8,
+        };
+      }
       
-      velocityX.current *= damping;
-      velocityY.current *= damping;
+      // Update previous position
+      prevX.current = targetX.current;
+      prevY.current = targetY.current;
       
-      currentX.current += velocityX.current;
-      currentY.current += velocityY.current;
+      // Spring physics for main cursor (fastest, most responsive)
+      const springStrength = 0.25;
+      const damping = 0.7;
       
-      // Slower trail follows main cursor
-      trailX.current += (currentX.current - trailX.current) * trailEase;
-      trailY.current += (currentY.current - trailY.current) * trailEase;
+      cursorVelX.current += (targetX.current - cursorX.current) * springStrength;
+      cursorVelY.current += (targetY.current - cursorY.current) * springStrength;
+      cursorVelX.current *= damping;
+      cursorVelY.current *= damping;
       
+      cursorX.current += cursorVelX.current;
+      cursorY.current += cursorVelY.current;
+      
+      // Glow follows cursor with slight delay
+      const glowSpring = 0.12;
+      const glowDamping = 0.75;
+      
+      glowVelX.current += (cursorX.current - glowX.current) * glowSpring;
+      glowVelY.current += (cursorY.current - glowY.current) * glowSpring;
+      glowVelX.current *= glowDamping;
+      glowVelY.current *= glowDamping;
+      
+      glowX.current += glowVelX.current;
+      glowY.current += glowVelY.current;
+      
+      // Trail follows glow (slowest)
+      const trailLerp = 0.08;
+      trailX.current += (glowX.current - trailX.current) * trailLerp;
+      trailY.current += (glowY.current - trailY.current) * trailLerp;
+      
+      // Apply direction offset for fluid effect
+      const finalGlowX = glowX.current - directionOffset.current.x;
+      const finalGlowY = glowY.current - directionOffset.current.y;
+      const finalTrailX = trailX.current - directionOffset.current.x * 1.5;
+      const finalTrailY = trailY.current - directionOffset.current.y * 1.5;
+      
+      // Update DOM
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${currentX.current}px, ${currentY.current}px, 0) translate(-50%, -50%)`;
+        cursorRef.current.style.transform = `translate3d(${cursorX.current}px, ${cursorY.current}px, 0) translate(-50%, -50%)`;
       }
       
       if (glowRef.current) {
-        glowRef.current.style.transform = `translate3d(${trailX.current}px, ${trailY.current}px, 0) translate(-50%, -50%)`;
+        glowRef.current.style.transform = `translate3d(${finalGlowX}px, ${finalGlowY}px, 0) translate(-50%, -50%)`;
       }
       
       if (trailRef.current) {
-        trailRef.current.style.transform = `translate3d(${trailX.current}px, ${trailY.current}px, 0) translate(-50%, -50%)`;
+        trailRef.current.style.transform = `translate3d(${finalTrailX}px, ${finalTrailY}px, 0) translate(-50%, -50%)`;
       }
       
-      requestAnimationFrame(updateCursor);
+      animationId = requestAnimationFrame(updateCursor);
     };
     
-    const animationId = requestAnimationFrame(updateCursor);
+    animationId = requestAnimationFrame(updateCursor);
     
     return () => {
       cancelAnimationFrame(animationId);
@@ -115,7 +157,7 @@ const CursorFollower = () => {
 
   return (
     <>
-      {/* Outer fluid glow trail - largest, slowest */}
+      {/* Outer fluid trail - largest, slowest, flows behind */}
       <div
         ref={trailRef}
         className="fixed top-0 left-0 pointer-events-none z-[9998]"
@@ -127,51 +169,54 @@ const CursorFollower = () => {
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '180px' : '120px',
-            height: isHovering ? '180px' : '120px',
-            background: `radial-gradient(circle, 
-              hsla(220, 15%, 85%, 0.25) 0%, 
-              hsla(220, 20%, 80%, 0.15) 35%, 
-              hsla(220, 25%, 75%, 0.08) 55%, 
-              transparent 75%)`,
-            filter: 'blur(30px)',
+            width: isHovering ? '220px' : '160px',
+            height: isHovering ? '220px' : '160px',
+            background: `radial-gradient(circle,
+              hsla(220, 25%, 90%, 0.4) 0%,
+              hsla(220, 30%, 85%, 0.3) 30%,
+              hsla(220, 35%, 80%, 0.2) 50%,
+              hsla(220, 40%, 75%, 0.1) 60%,
+              transparent 80%)`,
+            filter: 'blur(40px)',
             transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>
       
-      {/* Mid glow layer */}
+      {/* Mid glow layer - flows behind */}
       <div
         ref={glowRef}
         className="fixed top-0 left-0 pointer-events-none z-[9999]"
         style={{
-          opacity: isVisible ? 0.85 : 0,
+          opacity: isVisible ? 0.8 : 0,
           transition: 'opacity 0.4s ease-out',
         }}
       >
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '90px' : '60px',
-            height: isHovering ? '90px' : '60px',
-            background: isHovering 
+            width: isHovering ? '130px' : '85px',
+            height: isHovering ? '130px' : '85px',
+            background: isHovering
               ? `radial-gradient(circle,
-                  hsla(210, 25%, 95%, 0.8) 0%,
-                  hsla(215, 30%, 90%, 0.5) 35%,
-                  hsla(220, 20%, 85%, 0.25) 55%,
-                  transparent 70%)`
+                  hsla(220, 35%, 98%, 0.8) 0%,
+                  hsla(220, 40%, 95%, 0.6) 25%,
+                  hsla(220, 45%, 90%, 0.4) 45%,
+                  hsla(220, 50%, 85%, 0.2) 60%,
+                  transparent 80%)`
               : `radial-gradient(circle,
-                  hsla(220, 15%, 90%, 0.6) 0%,
-                  hsla(220, 20%, 85%, 0.35) 40%,
-                  hsla(220, 25%, 80%, 0.15) 60%,
-                  transparent 75%)`,
-            filter: 'blur(15px)',
-            transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease-out',
+                  hsla(220, 30%, 95%, 0.7) 0%,
+                  hsla(220, 35%, 90%, 0.5) 30%,
+                  hsla(220, 40%, 85%, 0.3) 50%,
+                  hsla(220, 45%, 80%, 0.1) 65%,
+                  transparent 85%)`,
+            filter: 'blur(25px)',
+            transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>
       
-      {/* Core cursor dot - smallest, fastest */}
+      {/* Core cursor dot - fastest, follows directly */}
       <div
         ref={cursorRef}
         className="fixed top-0 left-0 pointer-events-none z-[10000]"
@@ -183,15 +228,15 @@ const CursorFollower = () => {
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '12px' : '8px',
-            height: isHovering ? '12px' : '8px',
-            background: isHovering 
-              ? 'linear-gradient(135deg, hsla(220, 20%, 98%, 1) 0%, hsla(220, 25%, 92%, 1) 100%)'
-              : 'linear-gradient(135deg, hsla(220, 15%, 95%, 1) 0%, hsla(220, 20%, 88%, 1) 100%)',
+            width: isHovering ? '16px' : '11px',
+            height: isHovering ? '16px' : '11px',
+            background: isHovering
+              ? 'linear-gradient(135deg, hsla(220, 30%, 100%, 1) 0%, hsla(220, 35%, 98%, 1) 50%, hsla(220, 40%, 95%, 1) 100%)'
+              : 'linear-gradient(135deg, hsla(220, 25%, 98%, 1) 0%, hsla(220, 30%, 95%, 1) 50%, hsla(220, 35%, 92%, 1) 100%)',
             boxShadow: isHovering
-              ? '0 0 25px hsla(220, 30%, 95%, 0.8), 0 0 50px hsla(220, 25%, 90%, 0.5), 0 0 75px hsla(220, 20%, 85%, 0.3)'
-              : '0 0 15px hsla(220, 25%, 92%, 0.7), 0 0 35px hsla(220, 20%, 88%, 0.4), 0 0 55px hsla(220, 15%, 85%, 0.2)',
-            transition: 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease-out, box-shadow 0.3s ease-out',
+              ? '0 0 35px hsla(220, 40%, 98%, 1), 0 0 70px hsla(220, 35%, 95%, 0.8), 0 0 105px hsla(220, 30%, 90%, 0.6), 0 0 140px hsla(220, 25%, 85%, 0.4)'
+              : '0 0 20px hsla(220, 35%, 98%, 0.9), 0 0 45px hsla(220, 30%, 95%, 0.7), 0 0 75px hsla(220, 25%, 90%, 0.5), 0 0 105px hsla(220, 20%, 85%, 0.3)',
+            transition: 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>

@@ -6,61 +6,63 @@
 
 @layer base {
   :root {
-    /* Premium Silver/White Mac-like Palette */
-    --background: 220 14% 96%;
-    --foreground: 220 20% 10%;
+    /* Ultra-Premium Rich Silver Mac-like Palette */
+    --background: 220 20% 98%;
+    --foreground: 220 30% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 30% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 30% 7%;
 
-    --primary: 220 15% 18%;
+    --primary: 220 25% 12%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 94%;
-    --secondary-foreground: 220 20% 10%;
+    --secondary: 220 18% 96%;
+    --secondary-foreground: 220 30% 7%;
 
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 220 16% 94%;
+    --muted-foreground: 220 15% 38%;
 
-    --accent: 220 14% 88%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 220 18% 91%;
+    --accent-foreground: 220 30% 7%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 220 15% 60%;
+    --border: 220 16% 88%;
+    --input: 220 16% 88%;
+    --ring: 220 20% 68%;
 
     --radius: 1rem;
 
-    /* Premium silver tokens - 5 distinct levels */
-    --silver-50: 220 20% 98%;
-    --silver-100: 220 16% 95%;
-    --silver-200: 220 14% 90%;
-    --silver-300: 220 12% 82%;
-    --silver-400: 220 10% 70%;
-    --silver-500: 220 8% 55%;
-    
-    /* Text hierarchy */
-    --charcoal: 220 25% 12%;
-    --charcoal-light: 220 20% 25%;
-    --soft-gray: 220 10% 45%;
-    --soft-gray-light: 220 8% 60%;
+    /* Ultra-rich premium silver tokens - 7 distinct levels */
+    --silver-50: 220 28% 99%;
+    --silver-100: 220 24% 97%;
+    --silver-200: 220 20% 94%;
+    --silver-300: 220 18% 88%;
+    --silver-400: 220 16% 78%;
+    --silver-500: 220 14% 65%;
+    --silver-600: 220 12% 50%;
+    --silver-700: 220 10% 35%;
 
-    /* Premium shadows with blue tint */
-    --shadow-subtle: 0 1px 2px 0 hsl(220 20% 10% / 0.03), 0 1px 3px -1px hsl(220 20% 10% / 0.02);
-    --shadow-card: 0 2px 8px -2px hsl(220 20% 10% / 0.06), 0 4px 16px -4px hsl(220 20% 10% / 0.08);
-    --shadow-elevated: 0 8px 24px -4px hsl(220 20% 10% / 0.08), 0 16px 32px -8px hsl(220 20% 10% / 0.12);
-    --shadow-hover: 0 20px 40px -8px hsl(220 20% 10% / 0.12), 0 32px 64px -16px hsl(220 20% 10% / 0.16);
-    --shadow-glow: 0 0 60px -15px hsl(220 30% 50% / 0.15);
-    
-    /* Glass effects */
-    --glass-bg: hsl(0 0% 100% / 0.7);
-    --glass-border: hsl(220 20% 90% / 0.5);
+    /* Enhanced text hierarchy with premium contrast */
+    --charcoal: 220 35% 6%;
+    --charcoal-light: 220 28% 18%;
+    --soft-gray: 220 18% 38%;
+    --soft-gray-light: 220 15% 55%;
+
+    /* Ultra-premium shadows with rich depth */
+    --shadow-subtle: 0 1px 2px 0 hsl(220 30% 6% / 0.05), 0 1px 3px -1px hsl(220 30% 6% / 0.04);
+    --shadow-card: 0 4px 12px -2px hsl(220 30% 6% / 0.08), 0 8px 24px -4px hsl(220 30% 6% / 0.10);
+    --shadow-elevated: 0 12px 32px -4px hsl(220 30% 6% / 0.12), 0 20px 40px -8px hsl(220 30% 6% / 0.14);
+    --shadow-hover: 0 30px 60px -8px hsl(220 30% 6% / 0.18), 0 40px 80px -16px hsl(220 30% 6% / 0.20);
+    --shadow-glow: 0 0 100px -25px hsl(220 40% 60% / 0.25);
+
+    /* Premium glass effects with subtle tinting */
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-border: hsl(220 22% 94% / 0.7);
   }
 
   .dark {
@@ -277,6 +279,43 @@
 
   .border-premium-light {
     border: 1px solid hsl(var(--silver-100));
+  }
+
+  /* Floating animations for subtle motion */
+  @keyframes float-0 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes float-1 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes float-2 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes float-3 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .animate-float-0 {
+    animation: float-0 6s ease-in-out infinite 0s;
+  }
+
+  .animate-float-1 {
+    animation: float-1 7s ease-in-out infinite 0.5s;
+  }
+
+  .animate-float-2 {
+    animation: float-2 8s ease-in-out infinite 1s;
+  }
+
+  .animate-float-3 {
+    animation: float-3 9s ease-in-out infinite 1.5s;
   }
 }
 

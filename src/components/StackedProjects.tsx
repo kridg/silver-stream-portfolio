@@ -1,4 +1,4 @@
-import { motion, useTransform, MotionValue } from "framer-motion";
+import { motion, useTransform, MotionValue, useScroll } from "framer-motion";
 import { ExternalLink, Github, ArrowUpRight } from "lucide-react";
 import { useRef } from "react";
 import MagneticButton from "./MagneticButton";
@@ -11,7 +11,7 @@ const projects = [
     tags: ["React", "TypeScript", "WebSocket", "D3.js"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-slate-100 to-zinc-50",
+    gradient: "from-silver-100 to-silver-50",
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ const projects = [
     tags: ["Next.js", "Stripe", "Prisma", "PostgreSQL"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-zinc-100 to-stone-50",
+    gradient: "from-silver-200 to-silver-100",
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const projects = [
     tags: ["React", "Node.js", "MongoDB", "Socket.io"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-stone-100 to-neutral-50",
+    gradient: "from-silver-300 to-silver-200",
   },
   {
     id: 4,
@@ -38,263 +38,190 @@ const projects = [
     tags: ["Node.js", "Express", "Redis", "Docker"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-neutral-100 to-slate-50",
+    gradient: "from-silver-400 to-silver-300",
   },
 ];
 
 interface StackedProjectsProps {
   scrollProgress: MotionValue<number>;
-  inHorizontalScroll?: boolean;
+  inExpandedView?: boolean;
+  section?: 'hero' | 'projects';
 }
 
-const StackedProjects = ({ scrollProgress, inHorizontalScroll = false }: StackedProjectsProps) => {
-  // Fixed offsets for stacked appearance - more visible stacking
+const StackedProjects = ({ scrollProgress, inExpandedView = false, section = 'hero' }: StackedProjectsProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Track scroll progress relative to this component
+  const { scrollYProgress: componentScrollProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  // Proper stacking offsets to create visible stack effect
   const stackOffsets = useRef([
-    { x: 0, y: 0, rotate: -4 },
-    { x: 20, y: 35, rotate: -1 },
-    { x: 40, y: 70, rotate: 2 },
-    { x: 60, y: 105, rotate: 4 },
+    { x: 0, y: 0, rotate: -2, scale: 1 }, // Bottom card (main/front)
+    { x: 15, y: -20, rotate: 3, scale: 0.95 }, // Middle card
+    { x: -10, y: -40, rotate: -5, scale: 0.9 }, // Top card
+    { x: 25, y: -60, rotate: 2, scale: 0.85 }, // Topmost card
   ]).current;
 
-  if (inHorizontalScroll) {
-    // In horizontal scroll mode - cards spread into horizontal row
-    return (
-      <div className="flex items-center gap-10 px-8">
-        {projects.map((project, index) => {
-          const startDelay = index * 0.15;
-          const endDelay = 0.4 + index * 0.15;
-          
-          // Transform from stacked to grid positions
-          const x = useTransform(
-            scrollProgress, 
-            [startDelay, endDelay], 
-            [stackOffsets[index].x - 200, index * 520]
-          );
-          const y = useTransform(
-            scrollProgress, 
-            [startDelay, endDelay], 
-            [stackOffsets[index].y, 0]
-          );
-          const rotate = useTransform(
-            scrollProgress, 
-            [startDelay, endDelay], 
-            [stackOffsets[index].rotate, 0]
-          );
-          const scale = useTransform(
-            scrollProgress, 
-            [0, startDelay, endDelay], 
-            [1 - index * 0.05, 1 - index * 0.05, 1]
-          );
+  // Determine if we should show expanded view based on scroll progress
+  const shouldExpand = scrollProgress > 0.6 || inExpandedView;
 
-          return (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={index}
-              x={x}
-              y={y}
-              rotate={rotate}
-              scale={scale}
-              zIndex={projects.length - index}
-              isExpanded={true}
-            />
-          );
-        })}
-      </div>
+  if (shouldExpand) {
+    // Clean 2x2 grid layout for projects section
+    return (
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, staggerChildren: 0.15 }}
+      >
+        {projects.map((project, index) => (
+          <motion.div
+            key={project.id}
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{
+              duration: 0.7,
+              delay: index * 0.1,
+              ease: [0.25, 0.1, 0.25, 1]
+            }}
+            whileHover={{
+              y: -10,
+              scale: 1.02,
+              transition: { duration: 0.3, ease: "easeOut" }
+            }}
+          >
+            <ProjectCard project={project} index={index} />
+          </motion.div>
+        ))}
+      </motion.div>
     );
   }
 
-  // Initial stacked mode beside hero - visible stack
   return (
-    <div className="relative w-[420px] h-[550px] flex items-center justify-center">
+    <motion.div
+      ref={containerRef}
+      className="relative w-[400px] sm:w-[450px] lg:w-[520px] h-[600px] sm:h-[650px] lg:h-[700px] flex items-center justify-center"
+      animate={{
+        y: scrollProgress > 0.25 ? 500 : 0, // Move down 500px when scrolled 25%
+        opacity: scrollProgress > 0.25 ? 0.5 : 1, // Fade when moving
+        scale: scrollProgress > 0.25 ? 0.9 : 1, // Scale down when moving
+      }}
+      transition={{
+        duration: 1.2,
+        ease: [0.25, 0.1, 0.25, 1],
+        type: "spring",
+        stiffness: 100
+      }}
+    >
       {projects.map((project, index) => {
         const offset = stackOffsets[index];
-        
-        // Subtle breathing animation based on scroll
-        const y = useTransform(scrollProgress, [0, 1], [offset.y, offset.y - 10]);
-        const rotate = useTransform(scrollProgress, [0, 1], [offset.rotate, offset.rotate * 0.5]);
+
+        // Cards maintain their relative positions within the moving stack
 
         return (
-          <motion.div
+          <div
             key={project.id}
+            className="absolute"
             style={{
               x: offset.x,
-              y: y,
-              rotateZ: rotate,
+              y: offset.y,
+              scale: offset.scale,
+              rotateZ: offset.rotate,
               zIndex: projects.length - index,
-            }}
-            className="absolute"
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-            animate={{ opacity: 1 - index * 0.08, scale: 1 - index * 0.03, y: offset.y }}
-            transition={{ duration: 0.6, delay: 0.3 + index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-            whileHover={{ 
-              y: offset.y - 15,
-              scale: 1.02,
-              zIndex: 50,
-              transition: { duration: 0.25 }
             }}
           >
             <StackedCard project={project} index={index} />
-          </motion.div>
+          </div>
         );
       })}
-    </div>
-  );
-};
-
-interface ProjectCardProps {
-  project: typeof projects[0];
-  index: number;
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  rotate: MotionValue<number>;
-  scale: MotionValue<number>;
-  zIndex: number;
-  isExpanded?: boolean;
-}
-
-const ProjectCard = ({ project, index, x, y, rotate, scale, zIndex, isExpanded }: ProjectCardProps) => {
-  return (
-    <motion.div
-      style={{
-        x: x,
-        y: y,
-        rotateZ: rotate,
-        scale: scale,
-        zIndex: zIndex,
-      }}
-      className="absolute flex-shrink-0 w-[480px] h-[480px]"
-      whileHover={{ 
-        scale: 1.03,
-        y: -15,
-        zIndex: 100,
-        transition: { duration: 0.3, ease: "easeOut" }
-      }}
-    >
-      <motion.article
-        className="group w-full h-full card-premium overflow-hidden cursor-pointer"
-      >
-        {/* Project Preview - Square aspect */}
-        <div className={`relative h-[280px] bg-gradient-to-br ${project.gradient} overflow-hidden`}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div 
-              className="w-20 h-20 rounded-2xl bg-card shadow-elevated flex items-center justify-center"
-              whileHover={{ scale: 1.15, rotate: 8 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <span className="text-3xl font-bold text-charcoal">{project.title.charAt(0)}</span>
-            </motion.div>
-          </div>
-          
-          {/* Hover overlay */}
-          <motion.div 
-            className="absolute inset-0 bg-charcoal/90 backdrop-blur-sm flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          >
-            <MagneticButton href={project.liveUrl} target="_blank" strength={0.5}>
-              <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
-                <ExternalLink className="w-5 h-5" />
-                Preview
-              </span>
-            </MagneticButton>
-            <MagneticButton href={project.sourceUrl} target="_blank" strength={0.5}>
-              <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
-                <Github className="w-5 h-5" />
-                Code
-              </span>
-            </MagneticButton>
-          </motion.div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <h3 className="text-xl font-semibold text-charcoal group-hover:text-primary transition-colors leading-tight">
-              {project.title}
-            </h3>
-            <motion.div
-              whileHover={{ x: 4, y: -4 }}
-              className="text-soft-gray group-hover:text-charcoal transition-colors flex-shrink-0"
-            >
-              <ArrowUpRight className="w-5 h-5" />
-            </motion.div>
-          </div>
-          
-          <p className="text-soft-gray leading-relaxed text-sm line-clamp-2">
-            {project.description}
-          </p>
-          
-          {/* Tech Tags */}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {project.tags.slice(0, 3).map((tag) => (
-              <span 
-                key={tag} 
-                className="px-3 py-1 text-xs font-medium rounded-full bg-silver-100 text-soft-gray border border-silver-200 hover:bg-silver-200 hover:text-charcoal-light transition-all duration-200"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </motion.article>
     </motion.div>
   );
 };
 
-// Simpler card for stacked view
+// Simplified stacked card component (pure image, no interactions)
 const StackedCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
   return (
-    <article className="group w-[340px] h-[400px] card-premium overflow-hidden cursor-pointer">
-      {/* Project Preview */}
-      <div className={`relative h-[200px] bg-gradient-to-br ${project.gradient} overflow-hidden`}>
+    <div className="w-[300px] sm:w-[340px] lg:w-[360px] h-[360px] sm:h-[400px] lg:h-[420px] overflow-hidden">
+      <div className={`relative h-full bg-gradient-to-br ${project.gradient} overflow-hidden rounded-2xl shadow-lg`}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-2xl bg-card/90 backdrop-blur-sm shadow-elevated flex items-center justify-center border border-white/20">
+            <span className="text-5xl font-bold text-charcoal">{project.title.charAt(0)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Expanded card component (larger, for grid view)
+const ProjectCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
+  return (
+    <motion.article
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="group w-full card-premium overflow-hidden cursor-pointer h-full"
+    >
+      <div className={`relative h-[280px] bg-gradient-to-br ${project.gradient} overflow-hidden`}>
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div 
-            className="w-16 h-16 rounded-2xl bg-card shadow-elevated flex items-center justify-center"
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="w-20 h-20 rounded-2xl bg-card shadow-elevated flex items-center justify-center"
+            whileHover={{ scale: 1.15, rotate: 8 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <span className="text-2xl font-bold text-charcoal">{project.title.charAt(0)}</span>
+            <span className="text-3xl font-bold text-charcoal">{project.title.charAt(0)}</span>
           </motion.div>
         </div>
         
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-charcoal/85 backdrop-blur-sm flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <a href={project.liveUrl} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-card text-charcoal text-sm font-medium shadow-elevated hover:scale-105 transition-transform">
-            <ExternalLink className="w-4 h-4" />
-            Preview
-          </a>
-          <a href={project.sourceUrl} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-card text-charcoal text-sm font-medium shadow-elevated hover:scale-105 transition-transform">
-            <Github className="w-4 h-4" />
-            Code
-          </a>
-        </div>
+        <motion.div 
+          className="absolute inset-0 bg-charcoal/90 backdrop-blur-sm flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <MagneticButton href={project.liveUrl} target="_blank" strength={0.5}>
+            <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
+              <ExternalLink className="w-5 h-5" />
+              Preview
+            </span>
+          </MagneticButton>
+          <MagneticButton href={project.sourceUrl} target="_blank" strength={0.5}>
+            <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
+              <Github className="w-5 h-5" />
+              Code
+            </span>
+          </MagneticButton>
+        </motion.div>
       </div>
 
-      {/* Content */}
-      <div className="p-5 space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-semibold text-charcoal group-hover:text-primary transition-colors">
+      <div className="p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="text-xl font-semibold text-charcoal group-hover:text-primary transition-colors leading-tight">
             {project.title}
           </h3>
-          <ArrowUpRight className="w-4 h-4 text-soft-gray group-hover:text-charcoal transition-colors flex-shrink-0" />
+          <motion.div
+            whileHover={{ x: 4, y: -4 }}
+            className="text-soft-gray group-hover:text-charcoal transition-colors flex-shrink-0"
+          >
+            <ArrowUpRight className="w-5 h-5" />
+          </motion.div>
         </div>
         
-        <p className="text-soft-gray leading-relaxed text-sm line-clamp-2">
+        <p className="text-soft-gray leading-relaxed text-sm line-clamp-3">
           {project.description}
         </p>
         
-        {/* Tech Tags */}
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {project.tags.slice(0, 3).map((tag) => (
+        <div className="flex flex-wrap gap-2 pt-2">
+          {project.tags.map((tag) => (
             <span 
               key={tag} 
-              className="px-2.5 py-1 text-xs font-medium rounded-full bg-silver-100 text-soft-gray border border-silver-200"
+              className="px-3 py-1 text-xs font-medium rounded-full bg-silver-100 text-soft-gray border border-silver-200 hover:bg-silver-200 hover:text-charcoal-light transition-all duration-200"
             >
               {tag}
             </span>
           ))}
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 };
 

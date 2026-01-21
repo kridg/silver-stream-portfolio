@@ -85,7 +85,7 @@ const Navbar = () => {
             </div>
 
             {/* CTA Button */}
-            <MagneticButton href="mailto:hello@kridipghale.dev" strength={0.3}>
+            <MagneticButton href="mailto:ghalekridip67@gmail.com" strength={0.3}>
               <motion.span 
                 className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-charcoal text-white text-sm font-medium hover:bg-charcoal-light transition-colors"
                 whileHover={{ scale: 1.02 }}
@@ -161,7 +161,7 @@ const Navbar = () => {
               })}
               
               <motion.a
-                href="mailto:hello@kridipghale.dev"
+                href="mailto:ghalekridip67@gmail.com"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ 
                   x: isMobileMenuOpen ? 0 : -20, 

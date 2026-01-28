@@ -1,4 +1,4 @@
-import { motion, useTransform, MotionValue, useScroll } from "framer-motion";
+import { motion, useTransform, MotionValue, useSpring } from "framer-motion";
 import { ExternalLink, Github, ArrowUpRight } from "lucide-react";
 import { useRef } from "react";
 import MagneticButton from "./MagneticButton";
@@ -11,7 +11,8 @@ const projects = [
     tags: ["React", "TypeScript", "WebSocket", "D3.js"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-silver-100 to-silver-50",
+    gradient: "from-slate-200 via-silver-100 to-zinc-50",
+    accentColor: "#64748b",
   },
   {
     id: 2,
@@ -20,7 +21,8 @@ const projects = [
     tags: ["Next.js", "Stripe", "Prisma", "PostgreSQL"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-silver-200 to-silver-100",
+    gradient: "from-zinc-200 via-stone-100 to-neutral-50",
+    accentColor: "#71717a",
   },
   {
     id: 3,
@@ -29,7 +31,8 @@ const projects = [
     tags: ["React", "Node.js", "MongoDB", "Socket.io"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-silver-300 to-silver-200",
+    gradient: "from-stone-200 via-neutral-100 to-gray-50",
+    accentColor: "#78716c",
   },
   {
     id: 4,
@@ -38,210 +41,203 @@ const projects = [
     tags: ["Node.js", "Express", "Redis", "Docker"],
     liveUrl: "#",
     sourceUrl: "#",
-    gradient: "from-silver-400 to-silver-300",
+    gradient: "from-neutral-300 via-gray-200 to-slate-100",
+    accentColor: "#525252",
   },
+];
+
+// Stack offsets for the scattered effect
+const stackOffsets = [
+  { x: 0, y: 0, rotate: -6, scale: 1 },
+  { x: 25, y: 15, rotate: 3, scale: 0.98 },
+  { x: -15, y: 30, rotate: -3, scale: 0.96 },
+  { x: 10, y: 45, rotate: 5, scale: 0.94 },
 ];
 
 interface StackedProjectsProps {
   scrollProgress: MotionValue<number>;
-  inExpandedView?: boolean;
   section?: 'hero' | 'projects';
 }
 
-const StackedProjects = ({ scrollProgress, inExpandedView = false, section = 'hero' }: StackedProjectsProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Track scroll progress relative to this component
-  const { scrollYProgress: componentScrollProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
+const StackedProjects = ({ scrollProgress, section = 'hero' }: StackedProjectsProps) => {
+  // Use number values from MotionValue for calculations
+  const smoothProgress = useSpring(scrollProgress, {
+    stiffness: 100,
+    damping: 30,
+    mass: 0.5,
   });
 
-  // Random scattered positions for dynamic stack effect
-  const stackOffsets = useRef([
-    { x: -20, y: 10, rotate: -8, scale: 0.95 }, // Bottom-left scattered
-    { x: 30, y: -15, rotate: 12, scale: 0.9 }, // Top-right scattered
-    { x: -35, y: -25, rotate: -15, scale: 0.85 }, // Top-left scattered
-    { x: 15, y: 25, rotate: 6, scale: 0.92 }, // Bottom-right scattered
-  ]).current;
-
-  // Smooth transition to grid based on scroll progress
-  const expandProgress = Math.max(0, Math.min(1, (scrollProgress - 0.5) * 2)); // Transition from 0.5 to 0.7 scroll progress
-  const shouldExpand = scrollProgress > 0.7 || inExpandedView;
-
-  if (shouldExpand) {
-    // Smooth transition from scattered positions to organized grid
-    return (
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        {projects.map((project, index) => {
-          const offset = stackOffsets[index];
-
-          return (
-            <motion.div
-              key={project.id}
-              initial={{
-                x: offset.x * expandProgress,
-                y: offset.y * expandProgress,
-                rotate: offset.rotate * expandProgress,
-                scale: 1 - (1 - offset.scale) * expandProgress,
-                opacity: 1
-              }}
-              animate={{
-                x: 0,
-                y: 0,
-                rotate: 0,
-                scale: 1,
-                opacity: 1
-              }}
-              transition={{
-                duration: 1.5,
-                delay: index * 0.2,
-                ease: [0.25, 0.1, 0.25, 1],
-                type: "spring",
-                stiffness: 80,
-                damping: 20
-              }}
-              whileHover={{
-                y: -8,
-                scale: 1.03,
-                transition: { duration: 0.3, ease: "easeOut" }
-              }}
-            >
-              <ProjectCard project={project} index={index} />
-            </motion.div>
-          );
-        })}
-      </motion.div>
-    );
-  }
-
   return (
-    <motion.div
-      ref={containerRef}
-      className="relative w-[450px] sm:w-[500px] lg:w-[580px] h-[650px] sm:h-[700px] lg:h-[750px] flex items-center justify-center"
-      animate={{
-        y: scrollProgress * 600, // Smoothly move down based on scroll progress
-        opacity: Math.max(0.3, 1 - scrollProgress * 0.7), // Gradually fade as we scroll
-        scale: Math.max(0.85, 1 - scrollProgress * 0.15), // Gradually scale down
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 50,
-        damping: 20,
-        mass: 0.8
-      }}
-    >
-      {projects.map((project, index) => {
-        const offset = stackOffsets[index];
-
-        // Cards maintain their relative positions within the moving stack
-
-        return (
-          <div
-            key={project.id}
-            className="absolute"
-            style={{
-              x: offset.x,
-              y: offset.y,
-              scale: offset.scale,
-              rotateZ: offset.rotate,
-              zIndex: projects.length - index,
-            }}
-          >
-            <StackedCard project={project} index={index} />
-          </div>
-        );
-      })}
-    </motion.div>
-  );
-};
-
-// Simplified stacked card component (pure image, no interactions)
-const StackedCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
-  return (
-    <div className="w-[300px] sm:w-[340px] lg:w-[360px] h-[360px] sm:h-[400px] lg:h-[420px] overflow-hidden">
-      <div className={`relative h-full bg-gradient-to-br ${project.gradient} overflow-hidden rounded-2xl shadow-lg`}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-24 h-24 rounded-2xl bg-card/90 backdrop-blur-sm shadow-elevated flex items-center justify-center border border-white/20">
-            <span className="text-5xl font-bold text-charcoal">{project.title.charAt(0)}</span>
-          </div>
-        </div>
-      </div>
+    <div className="relative w-[320px] sm:w-[360px] lg:w-[400px] h-[400px] sm:h-[450px] lg:h-[500px]">
+      {projects.map((project, index) => (
+        <AnimatedProjectCard
+          key={project.id}
+          project={project}
+          index={index}
+          total={projects.length}
+          scrollProgress={smoothProgress}
+        />
+      ))}
     </div>
   );
 };
 
-// Expanded card component (larger, for grid view)
-const ProjectCard = ({ project, index }: { project: typeof projects[0], index: number }) => {
-  return (
-    <motion.article
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className="group w-full card-premium overflow-hidden cursor-pointer h-full"
-    >
-      <div className={`relative h-[280px] bg-gradient-to-br ${project.gradient} overflow-hidden`}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <motion.div 
-            className="w-20 h-20 rounded-2xl bg-card shadow-elevated flex items-center justify-center"
-            whileHover={{ scale: 1.15, rotate: 8 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <span className="text-3xl font-bold text-charcoal">{project.title.charAt(0)}</span>
-          </motion.div>
-        </div>
-        
-        <motion.div 
-          className="absolute inset-0 bg-charcoal/90 backdrop-blur-sm flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          <MagneticButton href={project.liveUrl} target="_blank" strength={0.5}>
-            <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
-              <ExternalLink className="w-5 h-5" />
-              Preview
-            </span>
-          </MagneticButton>
-          <MagneticButton href={project.sourceUrl} target="_blank" strength={0.5}>
-            <span className="flex items-center gap-2 px-5 py-3 rounded-xl bg-card text-charcoal font-medium shadow-elevated">
-              <Github className="w-5 h-5" />
-              Code
-            </span>
-          </MagneticButton>
-        </motion.div>
-      </div>
+interface AnimatedProjectCardProps {
+  project: typeof projects[0];
+  index: number;
+  total: number;
+  scrollProgress: MotionValue<number>;
+}
 
-      <div className="p-6 space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-xl font-semibold text-charcoal group-hover:text-primary transition-colors leading-tight">
-            {project.title}
-          </h3>
+const AnimatedProjectCard = ({ project, index, total, scrollProgress }: AnimatedProjectCardProps) => {
+  const offset = stackOffsets[index];
+
+  // Transform scroll progress to individual card animations
+  // Each card expands at different scroll points
+  const cardDelay = index * 0.1;
+  
+  // Stack to expand transformation
+  const x = useTransform(
+    scrollProgress,
+    [0, 0.2 + cardDelay, 0.4 + cardDelay],
+    [offset.x, offset.x * 0.5, 0]
+  );
+  
+  const y = useTransform(
+    scrollProgress,
+    [0, 0.2 + cardDelay, 0.4 + cardDelay],
+    [offset.y, offset.y * 0.5, 0]
+  );
+  
+  const rotate = useTransform(
+    scrollProgress,
+    [0, 0.2 + cardDelay, 0.4 + cardDelay],
+    [offset.rotate, offset.rotate * 0.3, 0]
+  );
+  
+  const scale = useTransform(
+    scrollProgress,
+    [0, 0.2 + cardDelay, 0.4 + cardDelay],
+    [offset.scale, offset.scale + 0.02, 1]
+  );
+
+  // Opacity based on stack position (top cards more visible)
+  const opacity = useTransform(
+    scrollProgress,
+    [0, 0.3],
+    [1 - index * 0.1, 1]
+  );
+
+  // Z-index changes during expansion
+  const zIndex = useTransform(
+    scrollProgress,
+    [0, 0.3, 0.5],
+    [total - index, total - index, index + 1]
+  );
+
+  return (
+    <motion.div
+      className="absolute top-0 left-0 w-full"
+      style={{
+        x,
+        y,
+        rotate,
+        scale,
+        opacity,
+        zIndex,
+      }}
+    >
+      <motion.div
+        className="group relative cursor-pointer"
+        whileHover={{
+          y: -12,
+          rotate: 0,
+          scale: 1.03,
+          zIndex: 50,
+          transition: { duration: 0.3, ease: "easeOut" }
+        }}
+      >
+        {/* Card */}
+        <div className={`relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br ${project.gradient} border border-white/40 shadow-elevated backdrop-blur-sm`}>
+          {/* Glass overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/5" />
+          
+          {/* Content preview */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+            {/* Project icon */}
+            <motion.div 
+              className="w-20 h-20 rounded-2xl bg-white/80 backdrop-blur-sm shadow-card flex items-center justify-center border border-white/50 mb-4"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <span className="text-4xl font-bold text-charcoal">{project.title.charAt(0)}</span>
+            </motion.div>
+            
+            {/* Title */}
+            <h3 className="text-lg font-semibold text-charcoal text-center mb-2">
+              {project.title}
+            </h3>
+            
+            {/* Tags preview */}
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {project.tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-white/60 text-charcoal-light border border-white/40"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Hover overlay */}
           <motion.div
-            whileHover={{ x: 4, y: -4 }}
-            className="text-soft-gray group-hover:text-charcoal transition-colors flex-shrink-0"
+            className="absolute inset-0 bg-charcoal/90 backdrop-blur-sm flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6"
           >
-            <ArrowUpRight className="w-5 h-5" />
+            <p className="text-white/80 text-sm text-center leading-relaxed line-clamp-3 mb-2">
+              {project.description}
+            </p>
+            
+            <div className="flex gap-3">
+              <MagneticButton href={project.liveUrl} target="_blank" strength={0.5}>
+                <span className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-charcoal font-medium text-sm shadow-elevated">
+                  <ExternalLink className="w-4 h-4" />
+                  Preview
+                </span>
+              </MagneticButton>
+              <MagneticButton href={project.sourceUrl} target="_blank" strength={0.5}>
+                <span className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-charcoal font-medium text-sm shadow-elevated">
+                  <Github className="w-4 h-4" />
+                  Code
+                </span>
+              </MagneticButton>
+            </div>
+
+            {/* All tags */}
+            <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-1 text-[10px] font-medium rounded-full bg-white/20 text-white border border-white/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
-        
-        <p className="text-soft-gray leading-relaxed text-sm line-clamp-3">
-          {project.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-2 pt-2">
-          {project.tags.map((tag) => (
-            <span 
-              key={tag} 
-              className="px-3 py-1 text-xs font-medium rounded-full bg-silver-100 text-soft-gray border border-silver-200 hover:bg-silver-200 hover:text-charcoal-light transition-all duration-200"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.article>
+
+        {/* Card shadow */}
+        <div 
+          className="absolute inset-0 rounded-2xl -z-10 blur-xl opacity-20 group-hover:opacity-30 transition-opacity"
+          style={{ 
+            background: `linear-gradient(135deg, ${project.accentColor}, transparent)`,
+            transform: 'translateY(8px) scale(0.95)'
+          }}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

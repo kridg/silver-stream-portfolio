@@ -9,6 +9,7 @@ interface MagneticButtonProps {
   href?: string;
   target?: string;
   rel?: string;
+  download?: string;
 }
 
 const MagneticButton = ({
@@ -19,6 +20,7 @@ const MagneticButton = ({
   href,
   target,
   rel,
+  download,
 }: MagneticButtonProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -76,7 +78,7 @@ const MagneticButton = ({
 
   if (href) {
     return (
-      <a href={href} target={target} rel={rel} onClick={onClick} className="inline-block">
+      <a href={href} target={target} rel={rel} download={download} onClick={onClick} className="inline-block">
         {content}
       </a>
     );

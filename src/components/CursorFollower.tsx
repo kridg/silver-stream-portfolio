@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 const CursorFollower = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
   
   const cursorRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
@@ -45,8 +46,8 @@ const CursorFollower = () => {
       // Normalize direction
       if (distance > 0) {
         directionOffset.current = {
-          x: (dx / distance) * 8, // Flow in opposite direction of movement
-          y: (dy / distance) * 8,
+          x: (dx / distance) * 10,
+          y: (dy / distance) * 10,
         };
       }
       
@@ -55,8 +56,8 @@ const CursorFollower = () => {
       prevY.current = targetY.current;
       
       // Spring physics for main cursor (fastest, most responsive)
-      const springStrength = 0.25;
-      const damping = 0.7;
+      const springStrength = 0.28;
+      const damping = 0.72;
       
       cursorVelX.current += (targetX.current - cursorX.current) * springStrength;
       cursorVelY.current += (targetY.current - cursorY.current) * springStrength;
@@ -67,8 +68,8 @@ const CursorFollower = () => {
       cursorY.current += cursorVelY.current;
       
       // Glow follows cursor with slight delay
-      const glowSpring = 0.12;
-      const glowDamping = 0.75;
+      const glowSpring = 0.1;
+      const glowDamping = 0.78;
       
       glowVelX.current += (cursorX.current - glowX.current) * glowSpring;
       glowVelY.current += (cursorY.current - glowY.current) * glowSpring;
@@ -79,15 +80,15 @@ const CursorFollower = () => {
       glowY.current += glowVelY.current;
       
       // Trail follows glow (slowest)
-      const trailLerp = 0.08;
+      const trailLerp = 0.06;
       trailX.current += (glowX.current - trailX.current) * trailLerp;
       trailY.current += (glowY.current - trailY.current) * trailLerp;
       
       // Apply direction offset for fluid effect
       const finalGlowX = glowX.current - directionOffset.current.x;
       const finalGlowY = glowY.current - directionOffset.current.y;
-      const finalTrailX = trailX.current - directionOffset.current.x * 1.5;
-      const finalTrailY = trailY.current - directionOffset.current.y * 1.5;
+      const finalTrailX = trailX.current - directionOffset.current.x * 1.8;
+      const finalTrailY = trailY.current - directionOffset.current.y * 1.8;
       
       // Update DOM
       if (cursorRef.current) {
@@ -129,7 +130,8 @@ const CursorFollower = () => {
         target.classList.contains('magnetic') ||
         target.closest('.magnetic') ||
         target.classList.contains('cursor-pointer') ||
-        target.closest('.cursor-pointer')
+        target.closest('.cursor-pointer') ||
+        target.closest('[role="button"]')
       ) {
         setIsHovering(true);
       }
@@ -138,15 +140,22 @@ const CursorFollower = () => {
     const handleMouseLeave = () => {
       setIsHovering(false);
     };
+    
+    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseUp = () => setIsClicking(false);
 
     window.addEventListener('mousemove', moveCursor);
     document.addEventListener('mouseover', handleMouseEnter);
     document.addEventListener('mouseout', handleMouseLeave);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
       window.removeEventListener('mousemove', moveCursor);
       document.removeEventListener('mouseover', handleMouseEnter);
       document.removeEventListener('mouseout', handleMouseLeave);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isVisible]);
 
@@ -162,61 +171,61 @@ const CursorFollower = () => {
         ref={trailRef}
         className="fixed top-0 left-0 pointer-events-none z-[9998]"
         style={{
-          opacity: isVisible ? 0.6 : 0,
+          opacity: isVisible ? 0.5 : 0,
           transition: 'opacity 0.5s ease-out',
         }}
       >
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '220px' : '160px',
-            height: isHovering ? '220px' : '160px',
+            width: isHovering ? '200px' : '140px',
+            height: isHovering ? '200px' : '140px',
             background: `radial-gradient(circle,
-              hsla(220, 25%, 90%, 0.4) 0%,
-              hsla(220, 30%, 85%, 0.3) 30%,
-              hsla(220, 35%, 80%, 0.2) 50%,
-              hsla(220, 40%, 75%, 0.1) 60%,
+              hsla(215, 20%, 70%, 0.25) 0%,
+              hsla(215, 25%, 65%, 0.18) 30%,
+              hsla(215, 30%, 60%, 0.1) 50%,
+              hsla(215, 35%, 55%, 0.05) 65%,
               transparent 80%)`,
-            filter: 'blur(40px)',
-            transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            filter: 'blur(35px)',
+            transition: 'width 0.5s cubic-bezier(0.16, 1, 0.3, 1), height 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>
       
-      {/* Mid glow layer - flows behind */}
+      {/* Mid glow layer - elegant silver glow */}
       <div
         ref={glowRef}
         className="fixed top-0 left-0 pointer-events-none z-[9999]"
         style={{
-          opacity: isVisible ? 0.8 : 0,
+          opacity: isVisible ? 0.7 : 0,
           transition: 'opacity 0.4s ease-out',
         }}
       >
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '130px' : '85px',
-            height: isHovering ? '130px' : '85px',
+            width: isHovering ? '100px' : isClicking ? '60px' : '70px',
+            height: isHovering ? '100px' : isClicking ? '60px' : '70px',
             background: isHovering
               ? `radial-gradient(circle,
-                  hsla(220, 35%, 98%, 0.8) 0%,
-                  hsla(220, 40%, 95%, 0.6) 25%,
-                  hsla(220, 45%, 90%, 0.4) 45%,
-                  hsla(220, 50%, 85%, 0.2) 60%,
+                  hsla(215, 15%, 55%, 0.5) 0%,
+                  hsla(215, 20%, 50%, 0.35) 30%,
+                  hsla(215, 25%, 45%, 0.2) 50%,
+                  hsla(215, 30%, 40%, 0.1) 65%,
                   transparent 80%)`
               : `radial-gradient(circle,
-                  hsla(220, 30%, 95%, 0.7) 0%,
-                  hsla(220, 35%, 90%, 0.5) 30%,
-                  hsla(220, 40%, 85%, 0.3) 50%,
-                  hsla(220, 45%, 80%, 0.1) 65%,
-                  transparent 85%)`,
-            filter: 'blur(25px)',
+                  hsla(215, 15%, 50%, 0.4) 0%,
+                  hsla(215, 20%, 45%, 0.28) 30%,
+                  hsla(215, 25%, 40%, 0.15) 50%,
+                  hsla(215, 30%, 35%, 0.08) 65%,
+                  transparent 80%)`,
+            filter: 'blur(20px)',
             transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>
       
-      {/* Core cursor dot - fastest, follows directly */}
+      {/* Core cursor dot - solid charcoal for premium feel */}
       <div
         ref={cursorRef}
         className="fixed top-0 left-0 pointer-events-none z-[10000]"
@@ -228,18 +237,38 @@ const CursorFollower = () => {
         <div
           className="rounded-full absolute"
           style={{
-            width: isHovering ? '16px' : '11px',
-            height: isHovering ? '16px' : '11px',
-            background: isHovering
-              ? 'linear-gradient(135deg, hsla(220, 30%, 100%, 1) 0%, hsla(220, 35%, 98%, 1) 50%, hsla(220, 40%, 95%, 1) 100%)'
-              : 'linear-gradient(135deg, hsla(220, 25%, 98%, 1) 0%, hsla(220, 30%, 95%, 1) 50%, hsla(220, 35%, 92%, 1) 100%)',
+            width: isHovering ? '10px' : isClicking ? '8px' : '12px',
+            height: isHovering ? '10px' : isClicking ? '8px' : '12px',
+            background: 'linear-gradient(135deg, hsl(215, 25%, 25%) 0%, hsl(215, 30%, 20%) 50%, hsl(215, 35%, 15%) 100%)',
             boxShadow: isHovering
-              ? '0 0 35px hsla(220, 40%, 98%, 1), 0 0 70px hsla(220, 35%, 95%, 0.8), 0 0 105px hsla(220, 30%, 90%, 0.6), 0 0 140px hsla(220, 25%, 85%, 0.4)'
-              : '0 0 20px hsla(220, 35%, 98%, 0.9), 0 0 45px hsla(220, 30%, 95%, 0.7), 0 0 75px hsla(220, 25%, 90%, 0.5), 0 0 105px hsla(220, 20%, 85%, 0.3)',
-            transition: 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              ? '0 0 20px hsla(215, 25%, 30%, 0.5), 0 0 40px hsla(215, 20%, 35%, 0.3)'
+              : '0 0 12px hsla(215, 25%, 30%, 0.4), 0 0 25px hsla(215, 20%, 35%, 0.2)',
+            transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
       </div>
+      
+      {/* Interaction ring - appears on hover */}
+      {isHovering && (
+        <div
+          className="fixed pointer-events-none z-[9997]"
+          style={{
+            left: cursorX.current,
+            top: cursorY.current,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <div
+            className="rounded-full border-2 animate-pulse"
+            style={{
+              width: '40px',
+              height: '40px',
+              borderColor: 'hsla(215, 25%, 35%, 0.4)',
+              animation: 'pulse 1.5s ease-in-out infinite',
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };

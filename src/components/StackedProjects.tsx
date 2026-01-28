@@ -57,45 +57,65 @@ const StackedProjects = ({ scrollProgress, inExpandedView = false, section = 'he
     offset: ["start end", "end start"]
   });
 
-  // Proper stacking offsets to create visible stack effect
+  // Random scattered positions for dynamic stack effect
   const stackOffsets = useRef([
-    { x: 0, y: 0, rotate: -2, scale: 1 }, // Bottom card (main/front)
-    { x: 15, y: -20, rotate: 3, scale: 0.95 }, // Middle card
-    { x: -10, y: -40, rotate: -5, scale: 0.9 }, // Top card
-    { x: 25, y: -60, rotate: 2, scale: 0.85 }, // Topmost card
+    { x: -20, y: 10, rotate: -8, scale: 0.95 }, // Bottom-left scattered
+    { x: 30, y: -15, rotate: 12, scale: 0.9 }, // Top-right scattered
+    { x: -35, y: -25, rotate: -15, scale: 0.85 }, // Top-left scattered
+    { x: 15, y: 25, rotate: 6, scale: 0.92 }, // Bottom-right scattered
   ]).current;
 
-  // Determine if we should show expanded view based on scroll progress
-  const shouldExpand = scrollProgress > 0.6 || inExpandedView;
+  // Smooth transition to grid based on scroll progress
+  const expandProgress = Math.max(0, Math.min(1, (scrollProgress - 0.5) * 2)); // Transition from 0.5 to 0.7 scroll progress
+  const shouldExpand = scrollProgress > 0.7 || inExpandedView;
 
   if (shouldExpand) {
-    // Clean 2x2 grid layout for projects section
+    // Smooth transition from scattered positions to organized grid
     return (
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, staggerChildren: 0.15 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
       >
-        {projects.map((project, index) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              duration: 0.7,
-              delay: index * 0.1,
-              ease: [0.25, 0.1, 0.25, 1]
-            }}
-            whileHover={{
-              y: -10,
-              scale: 1.02,
-              transition: { duration: 0.3, ease: "easeOut" }
-            }}
-          >
-            <ProjectCard project={project} index={index} />
-          </motion.div>
-        ))}
+        {projects.map((project, index) => {
+          const offset = stackOffsets[index];
+
+          return (
+            <motion.div
+              key={project.id}
+              initial={{
+                x: offset.x * expandProgress,
+                y: offset.y * expandProgress,
+                rotate: offset.rotate * expandProgress,
+                scale: 1 - (1 - offset.scale) * expandProgress,
+                opacity: 1
+              }}
+              animate={{
+                x: 0,
+                y: 0,
+                rotate: 0,
+                scale: 1,
+                opacity: 1
+              }}
+              transition={{
+                duration: 1.5,
+                delay: index * 0.2,
+                ease: [0.25, 0.1, 0.25, 1],
+                type: "spring",
+                stiffness: 80,
+                damping: 20
+              }}
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+            >
+              <ProjectCard project={project} index={index} />
+            </motion.div>
+          );
+        })}
       </motion.div>
     );
   }
@@ -103,17 +123,17 @@ const StackedProjects = ({ scrollProgress, inExpandedView = false, section = 'he
   return (
     <motion.div
       ref={containerRef}
-      className="relative w-[400px] sm:w-[450px] lg:w-[520px] h-[600px] sm:h-[650px] lg:h-[700px] flex items-center justify-center"
+      className="relative w-[450px] sm:w-[500px] lg:w-[580px] h-[650px] sm:h-[700px] lg:h-[750px] flex items-center justify-center"
       animate={{
-        y: scrollProgress > 0.25 ? 500 : 0, // Move down 500px when scrolled 25%
-        opacity: scrollProgress > 0.25 ? 0.5 : 1, // Fade when moving
-        scale: scrollProgress > 0.25 ? 0.9 : 1, // Scale down when moving
+        y: scrollProgress * 600, // Smoothly move down based on scroll progress
+        opacity: Math.max(0.3, 1 - scrollProgress * 0.7), // Gradually fade as we scroll
+        scale: Math.max(0.85, 1 - scrollProgress * 0.15), // Gradually scale down
       }}
       transition={{
-        duration: 1.2,
-        ease: [0.25, 0.1, 0.25, 1],
         type: "spring",
-        stiffness: 100
+        stiffness: 50,
+        damping: 20,
+        mass: 0.8
       }}
     >
       {projects.map((project, index) => {

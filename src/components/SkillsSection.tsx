@@ -137,7 +137,7 @@ const SkillsSection = () => {
               scale: 1.02,
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
             }}
-            className={`card-premium p-8 bg-gradient-to-br ${category.color} overflow-hidden group animate-float-${categoryIndex} relative`}
+            className={`card-premium p-8 bg-gradient-to-br ${category.color} overflow-hidden group animate-float-${categoryIndex} relative hover:shadow-2xl hover:shadow-silver-300/20 transition-all duration-500`}
           >
             {/* Animated background particles */}
             <motion.div

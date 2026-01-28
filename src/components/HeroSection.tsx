@@ -12,32 +12,51 @@ const HeroSection = () => {
 
   return (
     <div className="flex flex-col items-start w-full relative overflow-hidden">
-      {/* Ambient background effects with animation */}
+      {/* Enhanced ambient background effects */}
       <motion.div
-        className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-gradient-to-br from-silver-200/30 to-transparent rounded-full blur-3xl pointer-events-none"
+        className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-gradient-to-br from-silver-200/25 via-cyan-100/15 to-transparent rounded-full blur-3xl pointer-events-none"
         animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.3, 0.5, 0.3],
-          rotate: [0, 90, 0]
+          scale: [1, 1.2, 0.9, 1],
+          opacity: [0.2, 0.4, 0.3, 0.2],
+          rotate: [0, 120, 240, 360],
+          x: [0, 30, -20, 0],
+          y: [0, -40, 20, 0]
         }}
         transition={{
-          duration: 8,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut"
         }}
       />
       <motion.div
-        className="absolute top-1/2 -right-32 w-[400px] h-[400px] bg-gradient-to-tl from-cyan-200/20 to-transparent rounded-full blur-3xl pointer-events-none"
+        className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-gradient-to-tl from-cyan-200/20 via-purple-100/10 to-transparent rounded-full blur-3xl pointer-events-none"
         animate={{
-          scale: [1.2, 0.8, 1.2],
-          opacity: [0.2, 0.4, 0.2],
-          x: [0, 50, 0]
+          scale: [1.3, 0.7, 1.1, 1.3],
+          opacity: [0.15, 0.35, 0.25, 0.15],
+          rotate: [360, 240, 120, 0],
+          x: [0, -60, 40, 0],
+          y: [0, 80, -30, 0]
         }}
         transition={{
-          duration: 6,
+          duration: 15,
           repeat: Infinity,
           ease: "easeInOut",
-          delay: 1
+          delay: 2
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 left-1/4 w-[300px] h-[300px] bg-gradient-to-tr from-silver-300/15 to-blue-100/10 rounded-full blur-2xl pointer-events-none"
+        animate={{
+          scale: [0.8, 1.4, 0.6, 0.8],
+          opacity: [0.1, 0.3, 0.2, 0.1],
+          x: [0, 40, -60, 0],
+          y: [0, -50, 30, 0]
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 4
         }}
       />
       

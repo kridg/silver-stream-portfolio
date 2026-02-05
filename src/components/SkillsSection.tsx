@@ -1,24 +1,21 @@
 import { motion } from "framer-motion";
+import { Monitor, Server, Database, Container } from "lucide-react";
 import {
-  Code2,
-  Server,
-  Database,
-  Cloud,
-  Palette,
-  Terminal,
-  Layers,
-  Boxes,
-  GitBranch,
-  Container,
-  Globe,
-  Cpu,
-  Monitor,
-  Smartphone,
-  Figma,
-  FileCode2,
-  Braces,
-  LayoutDashboard,
-} from "lucide-react";
+  SiReact,
+  SiJavascript,
+  SiTypescript,
+  SiTailwindcss,
+  SiNodedotjs,
+  SiPython,
+  SiDjango,
+  SiPostgresql,
+  SiMongodb,
+  SiSupabase,
+  SiDocker,
+  SiGit,
+  SiGithubactions,
+} from "react-icons/si";
+import { TbApi } from "react-icons/tb";
 
 const skillCategories = [
   {
@@ -27,10 +24,10 @@ const skillCategories = [
     color: "from-silver-50/80 to-silver-100/60",
     borderColor: "border-silver-200",
     skills: [
-      { name: "React", icon: Code2, color: "text-blue-500" },
-      { name: "JavaScript", icon: Braces, color: "text-yellow-500" },
-      { name: "TypeScript", icon: FileCode2, color: "text-blue-600" },
-      { name: "Tailwind CSS", icon: Palette, color: "text-cyan-500" },
+      { name: "React", icon: SiReact, color: "text-[#61DAFB]" },
+      { name: "JavaScript", icon: SiJavascript, color: "text-[#F7DF1E]" },
+      { name: "TypeScript", icon: SiTypescript, color: "text-[#3178C6]" },
+      { name: "Tailwind CSS", icon: SiTailwindcss, color: "text-[#06B6D4]" },
     ],
   },
   {
@@ -39,10 +36,10 @@ const skillCategories = [
     color: "from-silver-100/70 to-silver-200/50",
     borderColor: "border-silver-300",
     skills: [
-      { name: "Node.js", icon: Server, color: "text-green-600" },
-      { name: "Python", icon: Terminal, color: "text-blue-500" },
-      { name: "Django", icon: Layers, color: "text-green-700" },
-      { name: "REST API", icon: Globe, color: "text-gray-600" },
+      { name: "Node.js", icon: SiNodedotjs, color: "text-[#339933]" },
+      { name: "Python", icon: SiPython, color: "text-[#3776AB]" },
+      { name: "Django", icon: SiDjango, color: "text-[#092E20]" },
+      { name: "REST API", icon: TbApi, color: "text-charcoal" },
     ],
   },
   {
@@ -51,9 +48,9 @@ const skillCategories = [
     color: "from-silver-200/60 to-silver-300/40",
     borderColor: "border-silver-400",
     skills: [
-      { name: "PostgreSQL", icon: Database, color: "text-blue-600" },
-      { name: "MongoDB", icon: Boxes, color: "text-green-600" },
-      { name: "Supabase", icon: Cloud, color: "text-green-500" },
+      { name: "PostgreSQL", icon: SiPostgresql, color: "text-[#4169E1]" },
+      { name: "MongoDB", icon: SiMongodb, color: "text-[#47A248]" },
+      { name: "Supabase", icon: SiSupabase, color: "text-[#3FCF8E]" },
     ],
   },
   {
@@ -62,9 +59,9 @@ const skillCategories = [
     color: "from-silver-300/50 to-silver-400/30",
     borderColor: "border-silver-500",
     skills: [
-      { name: "Docker", icon: Container, color: "text-blue-500" },
-      { name: "Git", icon: GitBranch, color: "text-orange-600" },
-      { name: "CI/CD", icon: Cpu, color: "text-gray-800" },
+      { name: "Docker", icon: SiDocker, color: "text-[#2496ED]" },
+      { name: "Git", icon: SiGit, color: "text-[#F05032]" },
+      { name: "CI/CD", icon: SiGithubactions, color: "text-[#2088FF]" },
     ],
   },
 ];
@@ -154,7 +151,7 @@ const SkillsSection = () => {
                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-silver-200 shadow-subtle hover:shadow-card hover:border-silver-300 transition-all duration-200 cursor-default group/skill"
                   >
                     <div className="p-2 rounded-lg bg-silver-50 border border-silver-200 group-hover/skill:scale-110 transition-transform duration-200">
-                      <Icon className={`w-6 h-6 ${skill.color || 'text-charcoal'}`} strokeWidth={1.5} />
+                          <Icon className={`w-6 h-6 ${skill.color || 'text-charcoal'}`} />
                     </div>
                     <span className="text-xs font-medium text-charcoal text-center leading-tight">
                       {skill.name}
